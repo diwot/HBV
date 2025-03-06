@@ -108,7 +108,7 @@ namespace HBV
             });
         }
 
-        public void IterateNTimes(int n = 10000)
+        public void IterateNTimes(int n = 10000, int stallIterationThreshold = 50)
         {
             //ParallelOptions options = new ParallelOptions
             //{
@@ -121,25 +121,58 @@ namespace HBV
 
             int total = n * numParticles;
 
-            int atomicCounter = 0;
+            int stallCounter = 0;
+            float prevBestValue = float.MaxValue;
+            for (int i = 0; i < n; i++)
+            {
+                Parallel.For(0, numParticles, j =>
+                {
+                    Iterate(j, i);
+                });
+
+                var val = globalBestVal;
+                if (val == prevBestValue)
+                    ++stallCounter;
+                else
+                    stallCounter = 0;
+
+                if (stallCounter >= stallIterationThreshold)
+                    break;
+
+                string time = (watch.ElapsedMilliseconds / 1000.0).ToString("0.000");
+                Console.WriteLine($"PSO Iteration {i}, elapsed seconds {time}, current best score " + val.ToString("0.000000"));
+                watch.Restart();
+
+                prevBestValue = val;
+            }
+
+
 
             //for (int i = 0; i < total; i++)
-            Parallel.For(0, total, j =>
-            {
-                int i = Interlocked.Add(ref atomicCounter, 1) - 1;
+            //Parallel.For(0, total, j =>
+            //{
+            //    int i = Interlocked.Add(ref atomicCounter, 1) - 1;
 
-                int particleIndex = i % numParticles;
-                int iterationIndex = i / numParticles;
-                Iterate(particleIndex, iterationIndex);
+            //    int particleIndex = i % numParticles;
+            //    int iterationIndex = i / numParticles;
+            //    Iterate(particleIndex, iterationIndex);
 
-                if (particleIndex == 0)
-                {
-                    string time = (watch.ElapsedMilliseconds / 1000.0).ToString("0.000");
-                    Console.WriteLine($"PSO Iteration {iterationIndex}, elapsed seconds {time}, current best score "+globalBestVal.ToString("0.000000"));
-                    watch.Restart();
-                }
-            });
-            
+            //    if (particleIndex == 0)
+            //    {
+            //        var val = globalBestVal;
+            //        if (val == prevBestValue)
+            //            ++stallCounter;
+            //        else
+            //            stallCounter = 0;
+
+            //        string time = (watch.ElapsedMilliseconds / 1000.0).ToString("0.000");
+            //        Console.WriteLine($"PSO Iteration {iterationIndex}, elapsed seconds {time}, current best score "+ val.ToString("0.000000"));
+            //        watch.Restart();
+
+            //        prevBestValue = val;
+            //    }
+            //});
+
         }
 
         public void Iterate(int particleIndex, int iterationIndex)
