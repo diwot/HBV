@@ -1,7 +1,8 @@
-﻿using HBV.InputOutput;
+﻿using HBV;
+using HBV.InputOutput;
 using System.Runtime.CompilerServices;
 
-namespace Jitter2
+namespace HBV
 {
     public class FloatVec
     {
@@ -139,6 +140,23 @@ namespace Jitter2
         public float[] qf;     // fast run-off
         public float[] qs;     // slow run-off
         public float[] qr;     // river discharge
+
+        public ElevationBandData() { }
+
+        public ElevationBandData(int length)
+        {
+            r= new float[length];
+            ssp= new float[length + 1];
+            ssw= new float[length + 1];
+            ssm= new float[length + 1];
+            sgw= new float[length + 1];
+            qd= new float[length];
+            qc= new float[length];
+            qin= new float[length];
+            qf= new float[length];
+            qs= new float[length];
+            qr= new float[length];
+        }
     }
 
     public class CatchmentInfo
@@ -226,7 +244,8 @@ namespace Jitter2
 
 
 
-        public static ElevationBandData HBV_permafrost_semidistributed(HBVParams[] pars, int permafrostOption, float seconds, Global global)
+        public static ElevationBandData HBV_permafrost_semidistributed(HBVParams[] pars, int permafrostOption, 
+            float seconds, Global global)
         {
             CatchmentInfo Catchmentinfo = global.Catchmentinfo;
 
@@ -315,12 +334,15 @@ namespace Jitter2
                     PetElev = pet_elev
                 };
 
-                ElevationBandData outputHBV = default;
+                ElevationBandData outputHBV = new ElevationBandData(meteoData[i].PetElev.Length); // default;
                 switch (permafrostOption)
                 {
                     case 1:
-                        outputHBV = HBV_no_permafrost(meteoData[i].TairElev, meteoData[i].PrecipElev,
-                            meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
+                        Core.HBV_no_permafrost_optimized(meteoData[i].TairElev, meteoData[i].PrecipElev,
+                            meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds, outputHBV);
+
+                        //outputHBV = Core.HBV_no_permafrost(meteoData[i].TairElev, meteoData[i].PrecipElev,
+                        //    meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
                         break;
                         //case 2:
                         //    outputHBV = HBV_permafrost_ice_storage(meteoData.TairElev, meteoData.PrecipElev,
@@ -511,193 +533,168 @@ namespace Jitter2
         //    public HBVOptions O;
         //}
 
-        public static ElevationBandData HBV_no_permafrost(float[] tm, float[] po, float[] etpo, HBVParams P, float A, float seconds)
-        {
-            float FFO = 0.0f;  // percent of forest
-            float FFI = 1.00f; // not forested
-            int dtot = etpo.Length; // number of timesteps
 
-            var O = new HBVOptions
-            {
-                TCON = seconds,
-                CEVPFO = 1.15f,
-                TT = P.TT,
-                TTI = P.TTI,
-                DTTM = 0.0f,
-                CFMAX = P.CFMAX,
-                FOCFMAX = P.FOCFMAX,
-                CFR = P.CFR,
-                WHC = P.WHC
-            };
 
-            var state = new HBVState
-            {
-                sm1 = 50f,
-                sw1 = 1f,
-                gw1 = 40f,
-                sp1 = 50f,
-                mw1 = 0f,
+        //public static ElevationBandData HBV_no_permafrost_optimized2(float[] tm, float[] po, float[] etpo, HBVParams P, float A, float seconds)
+        //{
+        //    const float FFO = 0.0f;  // percent of forest
+        //    const float FFI = 1.00f; // not forested
+        //    int dtot = etpo.Length; // number of timesteps
 
-                sp = new float[dtot + 1],
-                mw = new float[dtot + 1],
-                sm = new float[dtot + 1],
-                sw = new float[dtot + 1],
-                gw = new float[dtot + 1]
-            };
+        //    // Pre-compute constants used in loops
+        //    float ttMinusHalfTti = P.TT - P.TTI * 0.5f;
+        //    float ttPlusHalfTti = P.TT + P.TTI * 0.5f;
+        //    float ttiInv = 1.0f / P.TTI;
+        //    float tconInv = 1.0f / seconds;
+        //    float fcInv = 1.0f / P.FC;
+        //    float lpFcInv = 1.0f / (P.LP * P.FC);
+        //    float areaScaling = A / (seconds * 1000);
+        //    float cfmaxScaled = P.CFMAX * (FFO * P.FOCFMAX + FFI);
+        //    float cfrScaled = P.CFR * cfmaxScaled;
+        //    float evapoScaling = FFO * 1.15f + FFI;
+        //    float onePlusAlfa = 1 + P.ALFA;
 
-            // Initialize arrays
-            float[] p = new float[dtot];
-            float[] ta = new float[dtot];
-            float[] ss = new float[dtot];
-            float[] r = new float[dtot];
-            float[] sm = new float[dtot];
-            float[] sr = new float[dtot];
-            float[] in_ = new float[dtot];
-            float[] qd = new float[dtot];
-            float[] qin = new float[dtot];
-            float[] etp = new float[dtot];
-            float[] eta = new float[dtot];
-            float[] qc = new float[dtot];
-            float[] qf = new float[dtot];
-            float[] qs = new float[dtot];
-            float[] qt = new float[dtot];
-            float[] qr = new float[dtot];
+        //    var O = new HBVOptions
+        //    {
+        //        TCON = seconds,
+        //        CEVPFO = 1.15f,
+        //        TT = P.TT,
+        //        TTI = P.TTI,
+        //        DTTM = 0.0f,
+        //        CFMAX = P.CFMAX,
+        //        FOCFMAX = P.FOCFMAX,
+        //        CFR = P.CFR,
+        //        WHC = P.WHC
+        //    };
 
-            // Set initial conditions
-            state.sp[0] = state.sp1;
-            state.mw[0] = state.mw1;
-            state.sm[0] = Math.Min(state.sm1, P.FC);
-            state.sw[0] = state.sw1;
-            state.gw[0] = state.gw1;
-            state.sp[1] = state.sp[0];
-            state.mw[1] = state.mw[0];
-            state.sm[1] = state.sm[0];
-            state.sw[1] = state.sw[0];
-            state.gw[1] = state.gw[0];
+        //    // Preallocate all arrays at once
+        //    var state = new HBVState
+        //    {
+        //        sm1 = 50f,
+        //        sw1 = 1f,
+        //        gw1 = 40f,
+        //        sp1 = 50f,
+        //        mw1 = 0f,
+        //        sp = new float[dtot + 1],
+        //        mw = new float[dtot + 1],
+        //        sm = new float[dtot + 1],
+        //        sw = new float[dtot + 1],
+        //        gw = new float[dtot + 1]
+        //    };
 
-            if (O.TCON == 0.0)
-                throw new Exception("Division by zero below -> leads to NaN");
+        //    float[] r = new float[dtot];
+        //    float[] qd = new float[dtot];
+        //    float[] qc = new float[dtot];
+        //    float[] qin = new float[dtot];
+        //    float[] qf = new float[dtot];
+        //    float[] qs = new float[dtot];
+        //    float[] qr = new float[dtot];
 
-            qf[0] = P.KF * MathF.Pow(state.sw[0], 1 + P.ALFA);
-            qs[0] = P.KS * state.gw[0];
-            qt[0] = (qf[0] + qs[0]) * A / (O.TCON * 1000);
+        //    // Set initial conditions
+        //    state.sp[0] = state.sp1;
+        //    state.mw[0] = state.mw1;
+        //    state.sm[0] = Math.Min(state.sm1, P.FC);
+        //    state.sw[0] = state.sw1;
+        //    state.gw[0] = state.gw1;
+        //    state.sp[1] = state.sp[0];
+        //    state.mw[1] = state.mw[0];
+        //    state.sm[1] = state.sm[0];
+        //    state.sw[1] = state.sw[0];
+        //    state.gw[1] = state.gw[0];
 
-            // Main simulation loop
-            for (int t = 0; t < dtot; t++)
-            {
-                // Snow pack balance components
-                p[t] = po[t];
-                ta[t] = tm[t];
+        //    // Initial values
+        //    qf[0] = P.KF * MathF.Pow(state.sw[0], onePlusAlfa);
+        //    qs[0] = P.KS * state.gw[0];
+        //    qr[0] = (qf[0] + qs[0]) * areaScaling;
 
-                if (ta[t] < (O.TT - O.TTI / 2))
-                {
-                    ss[t] = p[t] * (FFO + FFI);
-                    r[t] = 0;
-                }
-                else if (ta[t] >= (O.TT - O.TTI / 2) && ta[t] < (O.TT + O.TTI / 2))
-                {
-                    if (O.TTI == 0.0)
-                        throw new Exception("Division by zero below -> leads to NaN");
+        //    // Main simulation loop
+        //    for (int t = 0; t < dtot; t++)
+        //    {
+        //        float ta_t = tm[t];
+        //        float p_t = po[t];
+        //        float ss_t, sm_t, sr_t, in_t;
 
-                    ss[t] = p[t] * ((O.TT + O.TTI / 2) - ta[t]) / O.TTI * (FFO + FFI);
-                    r[t] = p[t] * (ta[t] - (O.TT - O.TTI / 2)) / O.TTI;
-                }
-                else
-                {
-                    ss[t] = 0;
-                    r[t] = p[t];
-                }
+        //        // Snow pack balance components
+        //        if (ta_t < ttMinusHalfTti)
+        //        {
+        //            ss_t = p_t * (FFO + FFI);
+        //            r[t] = 0;
+        //        }
+        //        else if (ta_t < ttPlusHalfTti)
+        //        {
+        //            ss_t = p_t * (ttPlusHalfTti - ta_t) * ttiInv * (FFO + FFI);
+        //            r[t] = p_t * (ta_t - ttMinusHalfTti) * ttiInv;
+        //        }
+        //        else
+        //        {
+        //            ss_t = 0;
+        //            r[t] = p_t;
+        //        }
 
-                // Snow melt, but not more than available snow storage
-                sm[t] = Math.Min(Math.Max(O.CFMAX * (ta[t] - (O.TT + O.DTTM)), 0), state.sp[t]);
+        //        // Snow melt and refreezing
+        //        sm_t = Math.Min(Math.Max(P.CFMAX * (ta_t - ttPlusHalfTti), 0), state.sp[t]);
+        //        sr_t = Math.Min(Math.Max(cfrScaled * (ttPlusHalfTti - ta_t), 0), state.mw[t]);
 
-                // Refreezing of water in snowpack 
-                sr[t] = Math.Min(Math.Max(O.CFR * (FFO * O.FOCFMAX + FFI) * O.CFMAX * ((O.TT + O.DTTM) - ta[t]), 0), state.mw[t]);
+        //        // Meltwater and rain reservoir
+        //        in_t = Math.Max(state.mw[t] + sm_t + r[t] - sr_t - O.WHC * state.sp[t], 0);
 
-                // Meltwater and rain reservoir
-                in_[t] = Math.Max(state.mw[t] + sm[t] + r[t] - sr[t] - O.WHC * state.sp[t], 0);
+        //        // Soil moisture balance components
+        //        qd[t] = Math.Max(in_t + state.sm[t] - P.FC, 0);
 
-                // Soil moisture balance components (mm/d)
-                qd[t] = Math.Max((in_[t] + state.sm[t] - P.FC), 0); // Direct runoff->overland flow
+        //        // Amount of infiltration
+        //        float smFcRatio = state.sm[t] * fcInv;
+        //        qin[t] = Math.Max(MathF.Pow(smFcRatio, P.BETA) * (in_t - qd[t]), 0);
 
-                if (P.FC == 0.0)
-                    throw new Exception("Division by zero below -> leads to NaN");
+        //        // Evaporation
+        //        float etp_t = etpo[t] * evapoScaling;
+        //        float eta_t = Math.Min(etp_t, etp_t * state.sm[t] * lpFcInv);
 
-                // Amount of infiltration
-                qin[t] = MathF.Pow(state.sm[t] / P.FC, P.BETA) * (in_[t] - qd[t]);
-                qin[t] = Math.Max(qin[t], 0); // Blocking of overinfiltration
+        //        // Water balance components
+        //        qc[t] = P.CFLUX * (1 - smFcRatio);
+        //        qf[t] = Math.Min(P.KF * MathF.Pow(state.sw[t], onePlusAlfa), state.sw[t]);
+        //        qs[t] = P.KS * state.gw[t];
+        //        qr[t] = (qs[t] + qf[t]) * areaScaling;
 
-                // Potential evaporation
-                etp[t] = etpo[t] * (FFO * O.CEVPFO + FFI);
+        //        // Update states
+        //        state.sp[t + 1] = state.sp[t] + ss_t + sr_t - sm_t;
+        //        state.mw[t + 1] = state.mw[t] + r[t] - sr_t + sm_t - in_t;
 
-                if (P.LP == 0.0 || P.FC == 0.0)
-                    throw new Exception("Division by zero below -> leads to NaN");
+        //        float swNext = state.sw[t] + Math.Max(qd[t] + qin[t] - P.PERC, 0) - 
+        //                     P.KF * MathF.Pow(state.sw[t], onePlusAlfa) - Math.Min(state.sw[t], qc[t]);
+        //        state.sw[t + 1] = Math.Max(swNext, 0);
 
-                // Actual evaporation
-                eta[t] = Math.Min(etp[t], (etp[t] * state.sm[t] / (P.LP * P.FC)));
+        //        if (state.sw[t + 1] == 0)
+        //        {
+        //            qc[t] = Math.Max(state.sw[t] + Math.Max(qd[t] + qin[t] - P.PERC, 0) - 
+        //                    P.KF * MathF.Pow(state.sw[t], onePlusAlfa), 0);
+        //        }
+        //        else
+        //        {
+        //            qc[t] = Math.Min(state.sw[t], qc[t]);
+        //        }
 
-                // Refilling from groundwater
-                qc[t] = P.CFLUX * (P.FC - state.sm[t]) / P.FC;
+        //        state.sm[t + 1] = Math.Max(state.sm[t] + in_t - qd[t] - qin[t] + qc[t] - eta_t, 0);
+        //        state.gw[t + 1] = (1 - P.KS) * state.gw[t] + Math.Min(qd[t] + qin[t], P.PERC);
+        //    }
 
-                // Surface water balance components (mm/d)
-                qf[t] = Math.Min(P.KF * MathF.Pow(state.sw[t], (1 + P.ALFA)), state.sw[t]);
+        //    return new ElevationBandData
+        //    {
+        //        r = r,
+        //        ssp = state.sp,
+        //        ssw = state.sw,
+        //        ssm = state.sm,
+        //        sgw = state.gw,
+        //        qd = qd,
+        //        qc = qc,
+        //        qin = qin,
+        //        qf = qf,
+        //        qs = qs,
+        //        qr = qr
+        //    };
+        //}
 
-                // Ground water balance components (mm/d)
-                qs[t] = P.KS * state.gw[t];
 
-                if (O.TCON == 0.0)
-                    throw new Exception("Division by zero below -> leads to NaN");
-
-                // Total discharge (m3/s)
-                qt[t] = (qs[t] + qf[t]) * A / (O.TCON * 1000);
-
-                // Snow pack balance (mm)
-                state.sp[t + 1] = state.sp[t] + ss[t] + sr[t] - sm[t];
-
-                // Meltwater in snowpack
-                state.mw[t + 1] = state.mw[t] + r[t] - sr[t] + sm[t] - in_[t];
-
-                // Surface water balance (mm)
-                state.sw[t + 1] = Math.Max(state.sw[t] + Math.Max((qd[t] + qin[t] - P.PERC), 0) -
-                    P.KF * MathF.Pow(state.sw[t], (1 + P.ALFA)) - Math.Min(state.sw[t], qc[t]), 0);
-
-                // Soil moisture balance (mm)
-                if (state.sw[t + 1] == 0)
-                {
-                    qc[t] = state.sw[t] + Math.Max((qd[t] + qin[t] - P.PERC), 0) - P.KF * MathF.Pow(state.sw[t], (1 + P.ALFA));
-                    qc[t] = Math.Max(qc[t], 0);
-                }
-                else
-                {
-                    qc[t] = Math.Min(state.sw[t], qc[t]);
-                }
-
-                state.sm[t + 1] = state.sm[t] + in_[t] - qd[t] - qin[t] + qc[t] - eta[t];
-                state.sm[t + 1] = Math.Max(state.sm[t + 1], 0);
-
-                // Ground water balance (mm)
-                state.gw[t + 1] = (1 - P.KS) * state.gw[t] + Math.Min((qd[t] + qin[t]), P.PERC);
-
-                // River discharge (m3/s)
-                qr[t] = qt[t];
-            }
-
-            return new ElevationBandData
-            {
-                r = r,
-                ssp = state.sp,
-                ssw = state.sw,
-                ssm = state.sm,
-                sgw = state.gw,
-                qd = qd,
-                qc = qc,
-                qin = qin,
-                qf = qf,
-                qs = qs,
-                qr = qr
-            };
-        }
-    }
+         }
 
 
 
@@ -932,7 +929,7 @@ namespace Jitter2
         public static void RunOptimizer()
         {
             // Load meteorological data
-            CsvDataMeteoData meteoData = new CsvDataMeteoData(@"C:\Users\twidmer\Downloads\N\meteodata_24h.csv");
+            CsvDataMeteoData meteoDataMeasured = new CsvDataMeteoData(@"C:\Users\twidmer\Downloads\N\meteodata_24h.csv");
 
             // Load catchment info
             var catchmentInfo = new CsvDataElevationBands(@"C:\Users\twidmer\Downloads\N\Elevation_bands.csv");
@@ -946,12 +943,12 @@ namespace Jitter2
             // float seconds = 3600f;  // 1h
 
             // Create arrays from the needed data
-            var dTime = meteoData.allDateTimes;
-            var tmean = meteoData.Tmean;
-            var pet = meteoData.PET;
-            var precip = meteoData.Precipitation_mm_even;
-            var discharge = meteoData.Discharge.Select(x => x / 1000f).ToArray(); // Convert to m3/s
-            var tground = meteoData.Tground;
+            var dTime = meteoDataMeasured.allDateTimes;
+            var tmean = meteoDataMeasured.Tmean;
+            var pet = meteoDataMeasured.PET;
+            var precip = meteoDataMeasured.Precipitation_mm_even;
+            var discharge = meteoDataMeasured.Discharge.Select(x => x / 1000f).ToArray(); // Convert to m3/s
+            var tground = meteoDataMeasured.Tground;
 
             int numSubcatchments = 8;
             int numParameters = 20;

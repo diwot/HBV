@@ -82,7 +82,7 @@
             butRunOptimizer.TabIndex = 1;
             butRunOptimizer.Text = "Run Optimizer";
             butRunOptimizer.UseVisualStyleBackColor = true;
-            butRunOptimizer.Click += butRunOptimizer_Click_1;
+            butRunOptimizer.Click += butRunOptimizer_Click;
             // 
             // butLoadData
             // 
@@ -92,7 +92,7 @@
             butLoadData.TabIndex = 0;
             butLoadData.Text = "Load and Plot Data";
             butLoadData.UseVisualStyleBackColor = true;
-            butLoadData.Click += butRunOptimizer_Click;
+            butLoadData.Click += butLoadAndPlotData_Click;
             // 
             // tabControl1
             // 

@@ -1,5 +1,5 @@
 using HBV.InputOutput;
-using Jitter2;
+using HBV;
 using ScottPlot;
 
 namespace HBV
@@ -11,12 +11,9 @@ namespace HBV
             InitializeComponent();
         }
 
-        private void butRunOptimizer_Click(object sender, EventArgs e)
+        private void butLoadAndPlotData_Click(object sender, EventArgs e)
         {
             CsvDataMeteoData meteoData = new CsvDataMeteoData(@"C:\Users\twidmer\Downloads\N\meteodata_24h.csv");
-
-
-
 
 
             List<DateTime> dateTimes = meteoData.allDateTimes;
@@ -51,7 +48,7 @@ namespace HBV
             plot.Refresh();
         }
 
-        private void butRunOptimizer_Click_1(object sender, EventArgs e)
+        private void butRunOptimizer_Click(object sender, EventArgs e)
         {
             PSODriver.RunOptimizer();
         }
