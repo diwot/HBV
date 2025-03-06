@@ -28,15 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             plotRainfall = new ScottPlot.FormsPlot();
             splitContainer1 = new SplitContainer();
+            butRunModel = new Button();
             butRunOptimizer = new Button();
             butLoadData = new Button();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             tabPage2 = new TabPage();
             plotRiverDischarge = new ScottPlot.FormsPlot();
-            butRunModel = new Button();
+            tmr = new System.Windows.Forms.Timer(components);
+            butSave = new Button();
+            dlgSave = new SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -63,6 +67,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            splitContainer1.Panel1.Controls.Add(butSave);
             splitContainer1.Panel1.Controls.Add(butRunModel);
             splitContainer1.Panel1.Controls.Add(butRunOptimizer);
             splitContainer1.Panel1.Controls.Add(butLoadData);
@@ -74,9 +79,19 @@
             splitContainer1.SplitterDistance = 166;
             splitContainer1.TabIndex = 1;
             // 
+            // butRunModel
+            // 
+            butRunModel.Location = new Point(12, 79);
+            butRunModel.Name = "butRunModel";
+            butRunModel.Size = new Size(129, 61);
+            butRunModel.TabIndex = 2;
+            butRunModel.Text = "Run Model";
+            butRunModel.UseVisualStyleBackColor = true;
+            butRunModel.Click += butRunModel_Click;
+            // 
             // butRunOptimizer
             // 
-            butRunOptimizer.Location = new Point(12, 79);
+            butRunOptimizer.Location = new Point(12, 146);
             butRunOptimizer.Name = "butRunOptimizer";
             butRunOptimizer.Size = new Size(129, 61);
             butRunOptimizer.TabIndex = 1;
@@ -136,23 +151,33 @@
             plotRiverDischarge.Size = new Size(1000, 727);
             plotRiverDischarge.TabIndex = 1;
             // 
-            // butRunModel
+            // tmr
             // 
-            butRunModel.Location = new Point(12, 146);
-            butRunModel.Name = "butRunModel";
-            butRunModel.Size = new Size(129, 61);
-            butRunModel.TabIndex = 2;
-            butRunModel.Text = "Run Model";
-            butRunModel.UseVisualStyleBackColor = true;
-            butRunModel.Click += butRunModel_Click;
+            tmr.Interval = 2000;
+            tmr.Tick += tmr_Tick;
             // 
-            // Form1
+            // butSave
+            // 
+            butSave.Location = new Point(12, 242);
+            butSave.Name = "butSave";
+            butSave.Size = new Size(129, 61);
+            butSave.TabIndex = 3;
+            butSave.Text = "Save";
+            butSave.UseVisualStyleBackColor = true;
+            butSave.Click += butSave_Click;
+            // 
+            // dlgSave
+            // 
+            dlgSave.FileName = "hoi";
+            dlgSave.Filter = "csv|*.csv";
+            // 
+            // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1184, 761);
             Controls.Add(splitContainer1);
-            Name = "Form1";
+            Name = "MainForm";
             Text = "Data Optimization";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
@@ -175,5 +200,8 @@
         private TabPage tabPage2;
         private ScottPlot.FormsPlot plotRiverDischarge;
         private Button butRunModel;
+        private System.Windows.Forms.Timer tmr;
+        private Button butSave;
+        private SaveFileDialog dlgSave;
     }
 }
