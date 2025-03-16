@@ -69,13 +69,13 @@ namespace HBV
             return result;
         }
 
-        public static (Task, PSO) RunOptimizer()
+        public static (Task, PSO) RunOptimizer(CsvMeteoData meteoDataMeasured, CsvDataElevationBands catchmentInfo)
         {
             // Load meteorological data
-            CsvDataMeteoData meteoDataMeasured = new CsvDataMeteoData(@"C:\Users\twidmer\Downloads\N\meteodata_24h.csv");
+            // CsvMeteoData meteoDataMeasured = new CsvMeteoData(@"C:\Daten\meteodata_24h.csv");
 
             // Load catchment info
-            var catchmentInfo = new CsvDataElevationBands(@"C:\Users\twidmer\Downloads\N\Elevation_bands.csv");
+            // var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
 
             // Set timestep in seconds
             float seconds = 86400f; // 24h
@@ -165,24 +165,35 @@ namespace HBV
             return (t, optimizer);
         }
 
-        public static (ElevationBandData, CsvDataMeteoData) Run(int numElevationBands)
+        //public static (ElevationBandData, CsvMeteoData) Run(CsvMeteoData meteoData, CsvDataElevationBands catchmentInfo, HBVParams[] loadedParams = null)
+        //{
+        //    int numElevationBands = catchmentInfo.AreaM2.Count;
+        //    HBVParams[] pars_test = new HBVParams[numElevationBands];
+        //    for (int i = 0; i < numElevationBands; i++)
+        //    {
+        //        pars_test[i] = new HBVParams(500, 3, 0.5f, 1, 0.1f, 0.01f, 3, 2, 0, 2, 5, 0.5f, 0.2f, 0.5f, 1, 5, 0, 1, 1, 0);
+        //    }
+
+        //    return Run(meteoData, catchmentInfo, pars_test);
+        //}
+
+        public static (ElevationBandData, CsvMeteoData) Run(CsvMeteoData meteoData, CsvDataElevationBands catchmentInfo, HBVParams[] pars_test=null)
         {
-            HBVParams[] pars_test = new HBVParams[numElevationBands];
-            for (int i = 0; i < numElevationBands; i++)
+            int numElevationBands = catchmentInfo.AreaM2.Count;
+            if (pars_test == null)
             {
-                pars_test[i] = new HBVParams(500, 3, 0.5f, 1, 0.1f, 0.01f, 3, 2, 0, 2, 5, 0.5f, 0.2f, 0.5f, 1, 5, 0, 1, 1, 0);
+                pars_test = new HBVParams[numElevationBands];
+                for (int i = 0; i < numElevationBands; i++)
+                {
+                    pars_test[i] = new HBVParams(500, 3, 0.5f, 1, 0.1f, 0.01f, 3, 2, 0, 2, 5, 0.5f, 0.2f, 0.5f, 1, 5, 0, 1, 1, 0);
+                }
             }
 
-            return Run(pars_test);
-        }
-
-        public static (ElevationBandData, CsvDataMeteoData) Run(HBVParams[] pars_test)
-        {
             // Load meteorological data
-            CsvDataMeteoData meteoData = new CsvDataMeteoData(@"C:\Users\twidmer\Downloads\N\meteodata_24h.csv");
+            // CsvMeteoData meteoData = new CsvMeteoData(@"C:\Daten\meteodata_24h.csv");
 
             // Load catchment info
-            var catchmentInfo = new CsvDataElevationBands(@"C:\Users\twidmer\Downloads\N\Elevation_bands.csv");
+            // var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
 
             // Set timestep in seconds
             float seconds = 86400f; // 24h
@@ -203,7 +214,7 @@ namespace HBV
             int numSubcatchments = 8;
             int numParameters = 20;
 
-            int numElevationBands = catchmentInfo.ElevationBottom.Count;
+            // int numElevationBands = catchmentInfo.ElevationBottom.Count;
 
 
 

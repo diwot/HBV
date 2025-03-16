@@ -2,7 +2,7 @@
 
 namespace HBV.InputOutput
 {
-    public class CsvDataMeteoData
+    public class CsvMeteoData
     {
         public List<DateTime> allDateTimes = new List<DateTime>();
         public List<float> Tmean = new List<float>();
@@ -18,7 +18,7 @@ namespace HBV.InputOutput
         public List<float> Precipitation_mm_even = new List<float>();
         public List<float> Discharge = new List<float>();
 
-        public CsvDataMeteoData(string path)
+        public CsvMeteoData(string path)
         {
             using (var reader = new StreamReader(path))
             {

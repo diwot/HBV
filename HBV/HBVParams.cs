@@ -26,6 +26,7 @@
         public float corrTg;   // correction for ground temperature
         public float infil_stop; // threshold temperature for infiltration stop
 
+        public HBVParams () { }
         public HBVParams(float fC, float bETA, float lP, float aLFA, float kF, float kS, float pERC, float cFLUX, float tT, float tTI, float cFMAX, float fOCFMAX, float cFR, float wHC, float mAXBAS, float precip_corr, float tTG, float tTGI, float corrTg, float infil_stop)
         {
             FC = fC;

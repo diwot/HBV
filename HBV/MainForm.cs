@@ -60,11 +60,19 @@ namespace HBV
             plot.Dock = DockStyle.Fill;
             plot.Refresh();
         }
+        CsvMeteoData meteoData;
+        CsvDataElevationBands catchmentInfo;
 
         private PSO optimizer = null;
         private void butRunOptimizer_Click(object sender, EventArgs e)
         {
-            (Task t, PSO optimizer) = PSODriver.RunOptimizer();
+            // Load meteorological data
+            meteoData = new CsvMeteoData(@"C:\Daten\meteodata_24h.csv");
+
+            // Load catchment info
+            catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
+
+            (Task t, PSO optimizer) = PSODriver.RunOptimizer(meteoData,catchmentInfo);
             this.optimizer = optimizer;
             t.Start();
             tmr.Enabled = true;
@@ -72,16 +80,26 @@ namespace HBV
 
         private void butRunModel_Click(object sender, EventArgs e)
         {
-            //(ElevationBandData result, CsvDataMeteoData data) = PSODriver.Run();
-            //PlotTimeSeries(plotRainfall, data.allDateTimes, result.r, "rainfall", "time", "mm");
-            //PlotTimeSeries(plotRiverDischarge, data.allDateTimes, result.qr, "river discharge", "time", "mm");
+
+            HBVParams[] pars = null;
+            if(dlgOpen.ShowDialog()==DialogResult.OK)
+                pars = ResultWriter.Load(dlgOpen.FileName).ToArray();
+
+            // Load meteorological data
+            CsvMeteoData meteoData = new CsvMeteoData(@"C:\Daten\meteodata_24h.csv");
+
+            // Load catchment info
+            var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
+            (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData,catchmentInfo,pars);
+            PlotTimeSeries(plotRainfall, data.allDateTimes, result.r, "rainfall", "time", "mm");
+            PlotTimeSeries(plotRiverDischarge, data.allDateTimes, result.qr, "river discharge", "time", "mm");
         }
 
         private void tmr_Tick(object sender, EventArgs e)
         {
             float[] rawData = optimizer.GetCopyGlobalBest();
 
-            (ElevationBandData result, CsvDataMeteoData data) = PSODriver.Run(PSODriver.FloatToHBVParams(rawData, 8, 20));
+            (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData,catchmentInfo,PSODriver.FloatToHBVParams(rawData, 8, 20));
             PlotTimeSeries(plotRainfall, data.allDateTimes, result.r, "rainfall", "time", "mm");
             PlotTimeSeries(plotRiverDischarge, data.allDateTimes, new List<IList<float>> { result.qr, data.Discharge }, "river discharge", "time", "mm", new List<float>() { 1, 0.001f });
         }
