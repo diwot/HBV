@@ -8,5 +8,7 @@
         public float[] Precip;
         public float[] Discharge;
         public CatchmentInfo Catchmentinfo;
+
+        public float[] Tground;
     }
 }

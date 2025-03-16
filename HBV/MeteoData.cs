@@ -6,5 +6,7 @@
         public float[] TairElev;
         public float[] PrecipElev;
         public float[] PetElev;
+
+        public float[] Tground;
     }
 }

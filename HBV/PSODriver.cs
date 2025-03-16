@@ -123,7 +123,8 @@ namespace HBV
                     Elevation_bottom = catchmentInfo.ElevationBottom.ToArray(),
                     Elevation_top = catchmentInfo.ElevationTop.ToArray(),
                     Total_Area_m2 = catchmentInfo.TotalAreaM2[0]
-                }
+                },
+                Tground = tground.ToArray()
             };
 
             float test_KGE = HBVModel.KGE_HBV(pars_test, perma, seconds, global);
@@ -244,7 +245,8 @@ namespace HBV
                     Elevation_bottom = catchmentInfo.ElevationBottom.ToArray(),
                     Elevation_top = catchmentInfo.ElevationTop.ToArray(),
                     Total_Area_m2 = catchmentInfo.TotalAreaM2[0]
-                }
+                },
+                Tground = tground.ToArray()
             };
 
             float test_KGE = HBVModel.KGE_HBV(pars_test, perma, seconds, global);

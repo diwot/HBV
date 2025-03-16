@@ -31,6 +31,7 @@
             components = new System.ComponentModel.Container();
             plotRainfall = new ScottPlot.FormsPlot();
             splitContainer1 = new SplitContainer();
+            butComparisonPlot = new Button();
             butSave = new Button();
             butRunModel = new Button();
             butRunOptimizer = new Button();
@@ -54,21 +55,21 @@
             // plotRainfall
             // 
             plotRainfall.Dock = DockStyle.Fill;
-            plotRainfall.Location = new Point(3, 4);
-            plotRainfall.Margin = new Padding(5, 4, 5, 4);
+            plotRainfall.Location = new Point(3, 3);
+            plotRainfall.Margin = new Padding(4, 3, 4, 3);
             plotRainfall.Name = "plotRainfall";
-            plotRainfall.Size = new Size(1145, 974);
+            plotRainfall.Size = new Size(1001, 727);
             plotRainfall.TabIndex = 0;
             // 
             // splitContainer1
             // 
             splitContainer1.Dock = DockStyle.Fill;
             splitContainer1.Location = new Point(0, 0);
-            splitContainer1.Margin = new Padding(3, 4, 3, 4);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
+            splitContainer1.Panel1.Controls.Add(butComparisonPlot);
             splitContainer1.Panel1.Controls.Add(butSave);
             splitContainer1.Panel1.Controls.Add(butRunModel);
             splitContainer1.Panel1.Controls.Add(butRunOptimizer);
@@ -77,17 +78,25 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(tabControl1);
-            splitContainer1.Size = new Size(1353, 1015);
-            splitContainer1.SplitterDistance = 189;
-            splitContainer1.SplitterWidth = 5;
+            splitContainer1.Size = new Size(1184, 761);
+            splitContainer1.SplitterDistance = 165;
             splitContainer1.TabIndex = 1;
+            // 
+            // butComparisonPlot
+            // 
+            butComparisonPlot.Location = new Point(12, 362);
+            butComparisonPlot.Name = "butComparisonPlot";
+            butComparisonPlot.Size = new Size(129, 61);
+            butComparisonPlot.TabIndex = 4;
+            butComparisonPlot.Text = "Comparison Plot";
+            butComparisonPlot.UseVisualStyleBackColor = true;
+            butComparisonPlot.Click += butComparisonPlot_Click;
             // 
             // butSave
             // 
-            butSave.Location = new Point(14, 323);
-            butSave.Margin = new Padding(3, 4, 3, 4);
+            butSave.Location = new Point(12, 242);
             butSave.Name = "butSave";
-            butSave.Size = new Size(147, 81);
+            butSave.Size = new Size(129, 61);
             butSave.TabIndex = 3;
             butSave.Text = "Save";
             butSave.UseVisualStyleBackColor = true;
@@ -95,10 +104,9 @@
             // 
             // butRunModel
             // 
-            butRunModel.Location = new Point(14, 105);
-            butRunModel.Margin = new Padding(3, 4, 3, 4);
+            butRunModel.Location = new Point(12, 79);
             butRunModel.Name = "butRunModel";
-            butRunModel.Size = new Size(147, 81);
+            butRunModel.Size = new Size(129, 61);
             butRunModel.TabIndex = 2;
             butRunModel.Text = "Run Model";
             butRunModel.UseVisualStyleBackColor = true;
@@ -106,10 +114,9 @@
             // 
             // butRunOptimizer
             // 
-            butRunOptimizer.Location = new Point(14, 195);
-            butRunOptimizer.Margin = new Padding(3, 4, 3, 4);
+            butRunOptimizer.Location = new Point(12, 146);
             butRunOptimizer.Name = "butRunOptimizer";
-            butRunOptimizer.Size = new Size(147, 81);
+            butRunOptimizer.Size = new Size(129, 61);
             butRunOptimizer.TabIndex = 1;
             butRunOptimizer.Text = "Run Optimizer";
             butRunOptimizer.UseVisualStyleBackColor = true;
@@ -117,10 +124,9 @@
             // 
             // butLoadData
             // 
-            butLoadData.Location = new Point(14, 16);
-            butLoadData.Margin = new Padding(3, 4, 3, 4);
+            butLoadData.Location = new Point(12, 12);
             butLoadData.Name = "butLoadData";
-            butLoadData.Size = new Size(147, 81);
+            butLoadData.Size = new Size(129, 61);
             butLoadData.TabIndex = 0;
             butLoadData.Text = "Load and Plot Data";
             butLoadData.UseVisualStyleBackColor = true;
@@ -132,20 +138,18 @@
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
-            tabControl1.Margin = new Padding(3, 4, 3, 4);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1159, 1015);
+            tabControl1.Size = new Size(1015, 761);
             tabControl1.TabIndex = 1;
             // 
             // tabPage1
             // 
             tabPage1.Controls.Add(plotRainfall);
-            tabPage1.Location = new Point(4, 29);
-            tabPage1.Margin = new Padding(3, 4, 3, 4);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3, 4, 3, 4);
-            tabPage1.Size = new Size(1151, 982);
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(1007, 733);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "rainfall";
             tabPage1.UseVisualStyleBackColor = true;
@@ -153,11 +157,10 @@
             // tabPage2
             // 
             tabPage2.Controls.Add(plotRiverDischarge);
-            tabPage2.Location = new Point(4, 29);
-            tabPage2.Margin = new Padding(3, 4, 3, 4);
+            tabPage2.Location = new Point(4, 24);
             tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3, 4, 3, 4);
-            tabPage2.Size = new Size(1151, 982);
+            tabPage2.Padding = new Padding(3);
+            tabPage2.Size = new Size(1007, 733);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "river discharge";
             tabPage2.UseVisualStyleBackColor = true;
@@ -165,10 +168,10 @@
             // plotRiverDischarge
             // 
             plotRiverDischarge.Dock = DockStyle.Fill;
-            plotRiverDischarge.Location = new Point(3, 4);
-            plotRiverDischarge.Margin = new Padding(5, 4, 5, 4);
+            plotRiverDischarge.Location = new Point(3, 3);
+            plotRiverDischarge.Margin = new Padding(4, 3, 4, 3);
             plotRiverDischarge.Name = "plotRiverDischarge";
-            plotRiverDischarge.Size = new Size(1145, 974);
+            plotRiverDischarge.Size = new Size(1001, 727);
             plotRiverDischarge.TabIndex = 1;
             // 
             // tmr
@@ -183,11 +186,10 @@
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1353, 1015);
+            ClientSize = new Size(1184, 761);
             Controls.Add(splitContainer1);
-            Margin = new Padding(3, 4, 3, 4);
             Name = "MainForm";
             Text = "Data Optimization";
             splitContainer1.Panel1.ResumeLayout(false);
@@ -215,5 +217,6 @@
         private Button butSave;
         private SaveFileDialog dlgSave;
         private OpenFileDialog dlgOpen;
+        private Button butComparisonPlot;
     }
 }

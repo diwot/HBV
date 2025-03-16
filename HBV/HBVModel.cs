@@ -158,31 +158,33 @@
                     ElevationBand = i,
                     TairElev = tair_elev,
                     PrecipElev = precip_elev,
-                    PetElev = pet_elev
+                    PetElev = pet_elev,
+
+                    Tground = global.Tground
                 };
 
                 ElevationBandData outputHBV = new ElevationBandData(meteoData[i].PetElev.Length); // default;
                 switch (permafrostOption)
                 {
                     case 1:
-                        Core.HBV_no_permafrost_optimized(meteoData[i].TairElev, meteoData[i].PrecipElev,
+                        NoPermafrost.HBV_no_permafrost_optimized(meteoData[i].TairElev, meteoData[i].PrecipElev,
                             meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds, outputHBV);
 
                         //outputHBV = Core.HBV_no_permafrost(meteoData[i].TairElev, meteoData[i].PrecipElev,
                         //    meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
                         break;
-                        //case 2:
-                        //    outputHBV = HBV_permafrost_ice_storage(meteoData.TairElev, meteoData.PrecipElev,
-                        //        meteoData.PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
-                        //    break;
-                        //case 3:
-                        //    outputHBV = HBV_permafrost_infiltration_blocking(meteoData.TairElev, meteoData.PrecipElev,
-                        //        meteoData.PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
-                        //    break;
-                        //default:
-                        //    outputHBV = HBV_permafrost_combined(meteoData.TairElev, meteoData.PrecipElev,
-                        //        meteoData.PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
-                        //   break;
+                    case 2:
+                        PermafrostIceStorage.HBV_permafrost_ice_storage(meteoData[i].Tground, meteoData[i].TairElev, meteoData[i].PrecipElev,
+                            meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds, outputHBV);
+                        break;
+                    //case 3:
+                    //    outputHBV = NoPermafrost.HBV_permafrost_infiltration_blocking(meteoData[i].TairElev, meteoData[i].PrecipElev,
+                    //        meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
+                    //    break;
+                    //default:
+                    //    outputHBV = NoPermafrost.HBV_permafrost_combined(meteoData[i].TairElev, meteoData[i].PrecipElev,
+                    //        meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
+                    //    break;
                 }
 
                 // Store results

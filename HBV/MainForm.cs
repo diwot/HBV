@@ -1,6 +1,8 @@
 using HBV.InputOutput;
 using HBV;
 using ScottPlot;
+using System.Diagnostics;
+using ScottPlot.Drawing.Colormaps;
 
 namespace HBV
 {
@@ -29,8 +31,14 @@ namespace HBV
 
         private void PlotTimeSeries(FormsPlot plot, IList<DateTime> times, List<IList<float>> values, string title, string xLabel, string yLabel, List<float> scalingFactors = null)
         {
+            var xData = times.Select(t => (float)(t - times[0]).TotalDays).ToList();
+            PlotTimeSeries(plot, xData, values, title, xLabel, yLabel, scalingFactors);
+        }
+
+        private void PlotTimeSeries(FormsPlot plot, IList<float> times, List<IList<float>> values, string title, string xLabel, string yLabel, List<float> scalingFactors = null)
+        {
             // Convert DateTime to double array of days since first date
-            double[] xData = times.Select(t => (t - times[0]).TotalDays).ToArray();
+           
 
             // Create plot
             plot.Plot.Clear();
@@ -44,7 +52,7 @@ namespace HBV
                     scaling = scalingFactors[i];
 
                 double[] yData = series.Select(v => scaling * (double.IsNaN((double)v) ? 0.0 : (double)v)).ToArray();
-                plot.Plot.AddScatter(xData, yData);
+                plot.Plot.AddScatter(times.Select(x => (double)x).ToArray(), yData);
             }
 
             // Customize the plot
@@ -72,7 +80,7 @@ namespace HBV
             // Load catchment info
             catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
 
-            (Task t, PSO optimizer) = PSODriver.RunOptimizer(meteoData,catchmentInfo);
+            (Task t, PSO optimizer) = PSODriver.RunOptimizer(meteoData, catchmentInfo);
             this.optimizer = optimizer;
             t.Start();
             tmr.Enabled = true;
@@ -82,7 +90,7 @@ namespace HBV
         {
 
             HBVParams[] pars = null;
-            if(dlgOpen.ShowDialog()==DialogResult.OK)
+            if (dlgOpen.ShowDialog() == DialogResult.OK)
                 pars = ResultWriter.Load(dlgOpen.FileName).ToArray();
 
             // Load meteorological data
@@ -90,7 +98,7 @@ namespace HBV
 
             // Load catchment info
             var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
-            (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData,catchmentInfo,pars);
+            (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData, catchmentInfo, pars);
             PlotTimeSeries(plotRainfall, data.allDateTimes, result.r, "rainfall", "time", "mm");
             PlotTimeSeries(plotRiverDischarge, data.allDateTimes, result.qr, "river discharge", "time", "mm");
         }
@@ -99,7 +107,7 @@ namespace HBV
         {
             float[] rawData = optimizer.GetCopyGlobalBest();
 
-            (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData,catchmentInfo,PSODriver.FloatToHBVParams(rawData, 8, 20));
+            (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData, catchmentInfo, PSODriver.FloatToHBVParams(rawData, 8, 20));
             PlotTimeSeries(plotRainfall, data.allDateTimes, result.r, "rainfall", "time", "mm");
             PlotTimeSeries(plotRiverDischarge, data.allDateTimes, new List<IList<float>> { result.qr, data.Discharge }, "river discharge", "time", "mm", new List<float>() { 1, 0.001f });
         }
@@ -119,6 +127,93 @@ namespace HBV
             }
             else
                 MessageBox.Show("You must run an optimization before anything can be saved.");
+        }
+
+        private void butComparisonPlot_Click(object sender, EventArgs e)
+        {
+
+            string dir = Application.StartupPath;
+            string path3 = dir + "../../../Data/runoff_test.mat";
+
+            List<IList<float>> test = new List<IList<float>>();
+
+            using (FileStream fs = new FileStream(path3, FileMode.Open))
+            {
+                MatFileHandler.MatFileReader r = new MatFileHandler.MatFileReader(fs);
+                var file = r.Read();
+
+                var vars = file.Variables.ToList();
+                var testName = vars[0].Name;
+                List<float> testValue = ToFloatList(vars[0].Value.ConvertToDoubleArray());
+                test.Add(testValue);
+            }
+
+
+
+
+
+            Console.WriteLine(dir);
+
+            //C:\git\HBV\HBV\Data
+            //C:\git\HBV\HBV\bin\Debug\net8.0-windows\
+
+            string path = dir + "../../../Data/Discharge_12h_lumped.csv";
+
+
+            //List<IList<float>> test = CsvLoader.LoadCsv(path);
+            List<float> x = GenerateIndexer(test[0].Count);
+
+
+
+            string pathPars = dir + "../../../Data/Test_parameter.csv";
+
+            List<float> qr;
+            {
+                HBVParams[] pars = new HBVParams[1];
+
+                var csvPars = CsvLoader.LoadCsv(pathPars);
+                pars[0] = new HBVParams(csvPars[0]);
+
+                // Load meteorological data
+                CsvMeteoData meteoData = new CsvMeteoData(@"C:\Daten\meteodata_12h.csv");
+
+                //int start = meteoData.allDateTimes.IndexOf(new DateTime(2013, 1, 1, 0, 0, 0));
+                //meteoData = meteoData.GetSubRange(start, x.Count);
+
+                // Load catchment info
+                var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands_lumped.csv");
+                (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData, catchmentInfo, pars);
+
+                qr = result.qr.ToList();
+
+                test.Add(qr);
+            }
+
+
+
+
+
+
+
+            PlotTimeSeries(plotRainfall, x, test, "Compare", "Index", "Matlab");
+        }
+
+        private List<float> ToFloatList(double[] doubles)
+        {
+            List<float> result = new List<float>(doubles.Length);
+            for (int i = 0; i < doubles.Length; i++)
+            {
+                result.Add((float)doubles[i]);
+            }
+            return result;
+        }
+
+        private List<float> GenerateIndexer(int count)
+        {
+            List<float> result = new List<float>(count);
+            for (int i = 0; i < count; i++)
+                result.Add(i);
+            return result;
         }
     }
 }

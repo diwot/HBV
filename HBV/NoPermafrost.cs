@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace HBV
 {
-    public static class Core
+    public static class NoPermafrost
     {
-        public static void HBV_no_permafrost_optimized(float[] tm, float[] po, float[] etpo, HBVParams P, float A, float seconds, ElevationBandData result)
+        public static void HBV_no_permafrost_optimized(float[] tm, float[] po, float[] etpo, 
+            HBVParams P, float A, float seconds, ElevationBandData result)
         {
             float FFO = 0.0f;  // percent of forest
             float FFI = 1.00f; // not forested

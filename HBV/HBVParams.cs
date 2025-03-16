@@ -16,18 +16,25 @@
         public float FOCFMAX;  // degree day factor, rate of snowmelt
         public float CFR;      // refreezing factor
         public float WHC;      // water holding capacity
+        
 
-
-        public float MAXBAS;
         public float precip_corr;
+        public float MAXBAS;
+      
 
         public float TTG;      // threshold temperature for ice in ground
         public float TTGI;     // threshold temperature variation  
         public float corrTg;   // correction for ground temperature
         public float infil_stop; // threshold temperature for infiltration stop
 
+        public HBVParams(IList<float> pars) : this(pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6], pars[7], pars[8], pars[9], pars[10], pars[11], pars[12], pars[13], pars[14], pars[15], pars[16], pars[17], pars[18], pars[19])
+        {
+
+        }
+
         public HBVParams () { }
-        public HBVParams(float fC, float bETA, float lP, float aLFA, float kF, float kS, float pERC, float cFLUX, float tT, float tTI, float cFMAX, float fOCFMAX, float cFR, float wHC, float mAXBAS, float precip_corr, float tTG, float tTGI, float corrTg, float infil_stop)
+        public HBVParams(float fC, float bETA, float lP, float aLFA, float kF, float kS, float pERC,
+            float cFLUX, float tT, float tTI, float cFMAX, float fOCFMAX, float cFR, float wHC, float precip_corr, float mAXBAS,  float tTG, float tTGI, float corrTg, float infil_stop)
         {
             FC = fC;
             BETA = bETA;

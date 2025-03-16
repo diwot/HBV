@@ -14,6 +14,8 @@
         public float[] qs;     // slow run-off
         public float[] qr;     // river discharge
 
+        public float[] tg;     // corrected ground temperature
+
         public ElevationBandData() { }
 
         public ElevationBandData(int length)
@@ -29,6 +31,8 @@
             qf= new float[length];
             qs= new float[length];
             qr= new float[length];
+
+            tg = new float[length];
         }
     }
 }

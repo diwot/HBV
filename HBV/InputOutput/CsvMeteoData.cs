@@ -52,9 +52,32 @@ namespace HBV.InputOutput
                 }
             }
         }
+
+        private CsvMeteoData() { }
+
         static float ParseFloatWithNaN(string value)
         {
             return value.Equals("NaN", StringComparison.OrdinalIgnoreCase) ? float.NaN : float.Parse(value, CultureInfo.InvariantCulture);
+        }
+
+        public CsvMeteoData GetSubRange(int start, int length)
+        {
+            int endExclusive = start + length;
+            var subRange = new CsvMeteoData();
+            subRange.allDateTimes = allDateTimes.GetRange(start, endExclusive - start);
+            subRange.Tmean = Tmean.GetRange(start, endExclusive - start);
+            subRange.Tdew = Tdew.GetRange(start, endExclusive - start);
+            subRange.Tground = Tground.GetRange(start, endExclusive - start);
+            subRange.RH = RH.GetRange(start, endExclusive - start);
+            subRange.AP = AP.GetRange(start, endExclusive - start);
+            subRange.u = u.GetRange(start, endExclusive - start);
+            subRange.Rad = Rad.GetRange(start, endExclusive - start);
+            subRange.Rad_MJm2d = Rad_MJm2d.GetRange(start, endExclusive - start);
+            subRange.Sunshine = Sunshine.GetRange(start, endExclusive - start);
+            subRange.PET = PET.GetRange(start, endExclusive - start);
+            subRange.Precipitation_mm_even = Precipitation_mm_even.GetRange(start, endExclusive - start);
+            subRange.Discharge = Discharge.GetRange(start, endExclusive - start);
+            return subRange;
         }
     }
 }
