@@ -80,7 +80,7 @@ namespace HBV
             // Load catchment info
             catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
 
-            (Task t, PSO optimizer) = PSODriver.RunOptimizer(meteoData, catchmentInfo);
+            (Task t, PSO optimizer) = PSODriver.RunOptimizer(meteoData, catchmentInfo, ModelType.NormalHBV);
             this.optimizer = optimizer;
             t.Start();
             tmr.Enabled = true;
@@ -133,7 +133,7 @@ namespace HBV
         {
 
             string dir = Application.StartupPath;
-            string path3 = dir + "../../../Data/runoff_test.mat";
+            string path3 = @"C:\Daten\test_runoff_ice_storage.mat";
 
             List<IList<float>> test = new List<IList<float>>();
 
@@ -157,7 +157,7 @@ namespace HBV
             //C:\git\HBV\HBV\Data
             //C:\git\HBV\HBV\bin\Debug\net8.0-windows\
 
-            string path = dir + "../../../Data/Discharge_12h_lumped.csv";
+            //string path = dir + "../../../Data/Discharge_12h_lumped.csv";
 
 
             //List<IList<float>> test = CsvLoader.LoadCsv(path);
@@ -165,24 +165,27 @@ namespace HBV
 
 
 
-            string pathPars = dir + "../../../Data/Test_parameter.csv";
+            string pathPars = @"C:\Daten\test_parameter_ice_storage.csv";
 
             List<float> qr;
             {
-                HBVParams[] pars = new HBVParams[1];
+                
 
                 var csvPars = CsvLoader.LoadCsv(pathPars);
-                pars[0] = new HBVParams(csvPars[0]);
+                HBVParams[] pars = new HBVParams[csvPars.Count];
+                for (int i = 0;i<pars.Length;++i)
+                   pars[i] = new HBVParams(csvPars[i]);
+                ModelType perma = ModelType.IceStorage;
 
                 // Load meteorological data
-                CsvMeteoData meteoData = new CsvMeteoData(@"C:\Daten\meteodata_12h.csv");
+                CsvMeteoData meteoData = new CsvMeteoData(@"C:\Daten\meteodata_24h.csv");
 
                 //int start = meteoData.allDateTimes.IndexOf(new DateTime(2013, 1, 1, 0, 0, 0));
                 //meteoData = meteoData.GetSubRange(start, x.Count);
 
                 // Load catchment info
-                var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands_lumped.csv");
-                (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData, catchmentInfo, pars);
+                var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
+                (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData, catchmentInfo, pars, perma);
 
                 qr = result.qr.ToList();
 

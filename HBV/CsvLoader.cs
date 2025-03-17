@@ -15,10 +15,15 @@ namespace HBV
 
             foreach (var line in File.ReadLines(filePath))
             {
-                var values = line.Split(';')
-                                 .Select(value => float.Parse(value, CultureInfo.InvariantCulture))
-                                 .ToList();
-                result.Add(values);
+                //var values = line.Split(new char[] { ';', ',' }, 2,StringSplitOptions.RemoveEmptyEntries);
+                var values = line.Split(',',StringSplitOptions.RemoveEmptyEntries);
+                List<float> row = new List<float>();
+                        for (int i = 0; i < values.Length; ++i)
+                {
+                    row.Add(Convert.ToSingle(values[i]));
+                }         
+                                 
+                result.Add(row);
             }
 
             return result;

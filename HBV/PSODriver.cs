@@ -3,6 +3,10 @@ using HBV.InputOutput;
 
 namespace HBV
 {
+    public enum ModelType
+    {
+        NormalHBV,IceStorage,InfiltrationBlocking,BothPermafrostAdaptions
+    }
     public class PSODriver
     {
         // Conversion function that can be reused elsewhere
@@ -69,7 +73,7 @@ namespace HBV
             return result;
         }
 
-        public static (Task, PSO) RunOptimizer(CsvMeteoData meteoDataMeasured, CsvDataElevationBands catchmentInfo)
+        public static (Task, PSO) RunOptimizer(CsvMeteoData meteoDataMeasured, CsvDataElevationBands catchmentInfo, ModelType perma)
         {
             // Load meteorological data
             // CsvMeteoData meteoDataMeasured = new CsvMeteoData(@"C:\Daten\meteodata_24h.csv");
@@ -105,7 +109,7 @@ namespace HBV
                 pars_test[i] = new HBVParams(500, 3, 0.5f, 1, 0.1f, 0.01f, 3, 2, 0, 2, 5, 0.5f, 0.2f, 0.5f, 1, 5, 0, 1, 1, 0);
             }
 
-            int perma = 1;
+            //int perma = 1;
             int timestep = 24;
             int period = 2014;
 
@@ -178,7 +182,8 @@ namespace HBV
         //    return Run(meteoData, catchmentInfo, pars_test);
         //}
 
-        public static (ElevationBandData, CsvMeteoData) Run(CsvMeteoData meteoData, CsvDataElevationBands catchmentInfo, HBVParams[] pars_test=null)
+        public static (ElevationBandData, CsvMeteoData) Run(CsvMeteoData meteoData,
+            CsvDataElevationBands catchmentInfo, HBVParams[] pars_test=null, ModelType perma = ModelType.NormalHBV)
         {
             int numElevationBands = catchmentInfo.AreaM2.Count;
             if (pars_test == null)
@@ -227,7 +232,7 @@ namespace HBV
             // Min bounds: [0.1, 0.01, 0.10, 0.10, 0.0005, 0.0005, 0.01, 0.0, -3, 0, 0, 0, 0, 0, 0, 0, -5, -2, 0, -5]
             // Max bounds: [1000, 7, 1, 3, 0.3, 0.3, 6, 4, 4, 7, 20, 1, 1, 0.8, 5, 100, 0, 2, 5, 2]
 
-            int perma = 1;
+            // int perma = 1;
             int timestep = 24;
             int period = 2014;
 

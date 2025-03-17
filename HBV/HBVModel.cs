@@ -1,4 +1,6 @@
-﻿namespace HBV
+﻿using ScottPlot.Palettes;
+
+namespace HBV
 {
     public class HBVModel
     {
@@ -31,7 +33,7 @@
             return MathF.Sqrt(sumSquaredDiffs / values.Length);
         }
 
-        public static float KGE_HBV(HBVParams[] pars, int permafrostOption, float seconds, Global global)
+        public static float KGE_HBV(HBVParams[] pars, ModelType permafrostOption, float seconds, Global global)
         {
             float[] runoffMeasured = global.Discharge;
 
@@ -71,7 +73,7 @@
 
 
 
-        public static ElevationBandData HBV_permafrost_semidistributed(HBVParams[] pars, int permafrostOption, 
+        public static ElevationBandData HBV_permafrost_semidistributed(HBVParams[] pars, ModelType permafrostOption, 
             float seconds, Global global)
         {
             CatchmentInfo Catchmentinfo = global.Catchmentinfo;
@@ -166,23 +168,23 @@
                 ElevationBandData outputHBV = new ElevationBandData(meteoData[i].PetElev.Length); // default;
                 switch (permafrostOption)
                 {
-                    case 1:
+                    case ModelType.NormalHBV:
                         NoPermafrost.HBV_no_permafrost_optimized(meteoData[i].TairElev, meteoData[i].PrecipElev,
                             meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds, outputHBV);
 
                         //outputHBV = Core.HBV_no_permafrost(meteoData[i].TairElev, meteoData[i].PrecipElev,
                         //    meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
                         break;
-                    case 2:
+                    case ModelType.IceStorage:
                         PermafrostIceStorage.HBV_permafrost_ice_storage(meteoData[i].Tground, meteoData[i].TairElev, meteoData[i].PrecipElev,
                             meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds, outputHBV);
                         break;
-                    //case 3:
+                    //case ModelType.InfiltrationBlocking:
                     //    outputHBV = NoPermafrost.HBV_permafrost_infiltration_blocking(meteoData[i].TairElev, meteoData[i].PrecipElev,
                     //        meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
                     //    break;
                     //default:
-                    //    outputHBV = NoPermafrost.HBV_permafrost_combined(meteoData[i].TairElev, meteoData[i].PrecipElev,
+                    //    outputHBV = Permafrost.HBV_permafrost_combined(meteoData[i].TairElev, meteoData[i].PrecipElev,
                     //        meteoData[i].PetElev, pars_elev, Catchmentinfo.Area_m2[i], seconds);
                     //    break;
                 }
