@@ -75,6 +75,16 @@ namespace HBV
             state_sw[1] = state_sw[0];
             state_gw[1] = state_gw[0];
 
+            float[] i_mw = new float[dtot + 1];
+            float[] i_sw = new float[dtot + 1];
+            float[] i_gw = new float[dtot + 1];
+            //i_mw[0] = i_mw1;
+            //i_sw[0] = i_sw1;
+            //i_gw[0] = i_gw1;
+            i_mw[1] = i_mw1;
+            i_sw[1] = i_sw1;
+            i_gw[1] = i_gw1;
+
             //if (O_TCON == 0.0)
             //    throw new Exception("Division by zero below -> leads to NaN");
 
@@ -166,24 +176,24 @@ namespace HBV
                 // Ice storage balance (mm)
                 if (Tground[t] < (O_TTG - O_TTGI / 2)) // freezing of water in soil
                 {
-                    i_mw1 = i_mw1 + (O_CFR * O_CFMAX * mw_t); // freezing of water in mw
-                    i_sw1 = i_sw1 + (O_CFR * O_CFMAX * state_sw[t]); // freezing of water in sw
-                    i_gw1 = i_gw1 + (O_CFR * O_CFMAX * state_gw[t]); // freezing of water in gw
+                    i_mw[t + 1] =   i_mw[t] + (O_CFR * O_CFMAX * mw_t); // freezing of water in mw
+                    i_sw[t + 1] =   i_sw[t] + (O_CFR * O_CFMAX * state_sw[t]); // freezing of water in sw
+                    i_gw[t + 1] = i_gw[t] + (O_CFR * O_CFMAX * state_gw[t]); // freezing of water in gw
                 }
                 else // melting of ice in soil
                 {
-                    i_mw1 = Math.Max(i_mw1 - (O_CFMAX * i_mw1), 0); // melting of ice in mw
-                    i_sw1 = Math.Max(i_sw1 - (O_CFMAX * i_sw1), 0); // melting of ice in sw
-                    i_gw1 = Math.Max(i_gw1 - (O_CFMAX * i_gw1), 0); // melting of ice in gw
+                    i_mw[t + 1] =   Math.Max(i_mw[t] - (O_CFMAX * i_mw1), 0); // melting of ice in mw
+                    i_sw[t + 1] =   Math.Max(i_sw[t] - (O_CFMAX * i_sw1), 0); // melting of ice in sw
+                    i_gw[t + 1] = Math.Max(i_gw[t] - (O_CFMAX * i_gw1), 0); // melting of ice in gw
                 }
 
                 // Meltwater in snowpack (meltwater + rain - refreeze + snowmelt - infiltration)
-                mw_t = mw_t + r[t] - sr_t + sm_t - in_t - (i_mw1 - i_mw1);
+                mw_t = mw_t + r[t] - sr_t + sm_t - in_t - (i_mw[t + 1] - i_mw[t]);
 
                 // Surface water balance (mm)
                 state_sw[t + 1] = Math.Max(state_sw[t] + Math.Max((qd[t] + qin[t] - P.PERC), 0) -
                     P.KF * MathF.Pow(state_sw[t], (1 + P.ALFA)) - Math.Min(state_sw[t], qc[t]), 0);
-                state_sw[t + 1] = Math.Max(state_sw[t + 1] - (i_sw1 - i_sw1), 0);
+                state_sw[t + 1] = Math.Max(state_sw[t + 1] - (i_sw[t + 1] - i_sw[t]), 0);
 
                 // Soil moisture balance (mm)
                 if (state_sw[t + 1] == 0)
@@ -200,9 +210,8 @@ namespace HBV
                 state_sm[t + 1] = Math.Max(state_sm[t + 1], 0);
 
                 // Ground water balance (mm)
-                state_gw[t + 1] = (1 - P.KS) * state_gw[t] + Math.Min((qd[t] + qin[t]), P.PERC) - (i_gw1 - i_gw1);
+                state_gw[t + 1] = (1 - P.KS) * state_gw[t] + Math.Min((qd[t] + qin[t]), P.PERC) - (i_gw[t + 1] - i_gw[t]);
                 state_gw[t + 1] = Math.Max(state_gw[t + 1], 0);
-
             }
         }
     }

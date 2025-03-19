@@ -133,11 +133,11 @@ namespace HBV
         {
 
             string dir = Application.StartupPath;
-            string path3 = @"C:\Daten\test_runoff_ice_storage.mat";
+            string pathMatlabReference = @"C:\Daten\test_discharge_lumped_ice_storage_24h.mat";
 
             List<IList<float>> test = new List<IList<float>>();
 
-            using (FileStream fs = new FileStream(path3, FileMode.Open))
+            using (FileStream fs = new FileStream(pathMatlabReference, FileMode.Open))
             {
                 MatFileHandler.MatFileReader r = new MatFileHandler.MatFileReader(fs);
                 var file = r.Read();
@@ -165,7 +165,7 @@ namespace HBV
 
 
 
-            string pathPars = @"C:\Daten\test_parameter_ice_storage.csv";
+            string pathPars = @"C:\Daten\test_params_lumped_ice_storage_24h.csv";
 
             List<float> qr;
             {
@@ -184,12 +184,12 @@ namespace HBV
                 //meteoData = meteoData.GetSubRange(start, x.Count);
 
                 // Load catchment info
-                var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands.csv");
+                var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands_lumped.csv");
                 (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData, catchmentInfo, pars, perma);
 
                 qr = result.qr.ToList();
 
-                test.Add(qr);
+                //test.Add(qr);
             }
 
 
