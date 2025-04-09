@@ -133,7 +133,7 @@ namespace HBV
         {
 
             string dir = Application.StartupPath;
-            string pathMatlabReference = @"C:\Daten\test_discharge_lumped_ice_storage_24h.mat";
+            string pathMatlabReference = @"C:\Daten\TestDaten\test_discharge_semi2_normal_HBV_24h.mat";
 
             List<IList<float>> test = new List<IList<float>>();
 
@@ -165,7 +165,7 @@ namespace HBV
 
 
 
-            string pathPars = @"C:\Daten\test_params_lumped_ice_storage_24h.csv";
+            string pathPars = @"C:\Daten\TestDaten\test_params_semi2_normal_HBV_24h.csv";
 
             List<float> qr;
             {
@@ -175,21 +175,21 @@ namespace HBV
                 HBVParams[] pars = new HBVParams[csvPars.Count];
                 for (int i = 0;i<pars.Length;++i)
                    pars[i] = new HBVParams(csvPars[i]);
-                ModelType perma = ModelType.IceStorage;
+                ModelType perma = ModelType.NormalHBV;
 
                 // Load meteorological data
-                CsvMeteoData meteoData = new CsvMeteoData(@"C:\Daten\meteodata_24h.csv");
+                CsvMeteoData meteoData = new CsvMeteoData(@"C:\Daten\TestDaten\meteodata_24h_2013_2018.csv");
 
                 //int start = meteoData.allDateTimes.IndexOf(new DateTime(2013, 1, 1, 0, 0, 0));
                 //meteoData = meteoData.GetSubRange(start, x.Count);
 
                 // Load catchment info
-                var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands_lumped.csv");
+                var catchmentInfo = new CsvDataElevationBands(@"C:\Daten\Elevation_bands_2.csv");
                 (ElevationBandData result, CsvMeteoData data) = PSODriver.Run(meteoData, catchmentInfo, pars, perma);
 
                 qr = result.qr.ToList();
 
-                //test.Add(qr);
+                test.Add(qr);
             }
 
 
